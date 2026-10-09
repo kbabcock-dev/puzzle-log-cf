@@ -1,0 +1,12 @@
+{
+  "name": "puzzle-log",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public --project-name puzzle-log"
+  },
+  "dependencies": { "@neondatabase/serverless": "^0.10.4" },
+  "devDependencies": { "wrangler": "^3.90.0" }
+}
