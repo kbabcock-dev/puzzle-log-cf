@@ -33,3 +33,6 @@ Add two repository secrets (GitHub repo > Settings > Secrets and variables > Act
 - `CLOUDFLARE_API_TOKEN`: a token with Account > Cloudflare Pages > Edit
 - `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
 `DATABASE_URL` stays in the Pages project (set once with `wrangler pages secret put`), so it is kept between deploys.
+
+## Leaderboard
+The Leaderboard tab shows every user's total puzzles and pieces (all time or this month), ranked by pieces or by puzzles. Signed-in users can see other people's usernames and totals, but not their puzzle names or photos.
