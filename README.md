@@ -26,3 +26,10 @@ CLI alternative: `npm install && npx wrangler pages deploy public --project-name
 - Passwords are hashed with PBKDF2-SHA256 (100,000 iterations) and a per-user salt. Sessions are random tokens in an HttpOnly cookie (30 days); only a hash of the token is stored.
 - There is no password reset. A forgotten password cannot be recovered.
 - Add a Cloudflare rate limiting rule on `/api/login` and `/api/signup` to slow down guessing and spam sign-ups.
+
+## Deploy on every push (GitHub Actions)
+`.github/workflows/deploy.yml` deploys to the `puzzle-log` Pages project whenever you push to `main`.
+Add two repository secrets (GitHub repo > Settings > Secrets and variables > Actions):
+- `CLOUDFLARE_API_TOKEN`: a token with Account > Cloudflare Pages > Edit
+- `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
+`DATABASE_URL` stays in the Pages project (set once with `wrangler pages secret put`), so it is kept between deploys.
