@@ -7,7 +7,7 @@ export async function onRequestGet({ env, data }) {
   try {
     const sql = neon(env.DATABASE_URL);
     const rows = await sql`
-      SELECT id, date::text AS date, name, pieces, (photo IS NOT NULL) AS has_photo, created_at
+      SELECT id, date::text AS date, name, pieces, (photo IS NOT NULL) AS has_photo, length(photo) AS photo_len, created_at
       FROM puzzles WHERE user_id = ${data.user.id} ORDER BY date DESC, created_at DESC`;
     return json(rows);
   } catch (e) {
@@ -35,7 +35,7 @@ export async function onRequestPost({ request, env, data }) {
     const rows = await sql`
       INSERT INTO puzzles (user_id, date, name, pieces, photo, photo_type)
       VALUES (${data.user.id}, ${date}, ${String(name).trim().slice(0, 120)}, ${n}, ${b64}, ${mime})
-      RETURNING id, date::text AS date, name, pieces, (photo IS NOT NULL) AS has_photo, created_at`;
+      RETURNING id, date::text AS date, name, pieces, (photo IS NOT NULL) AS has_photo, length(photo) AS photo_len, created_at`;
     return json(rows[0], 201);
   } catch (e) {
     console.error(e);

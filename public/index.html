@@ -27,7 +27,6 @@ header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-betw
 .totals b{display:block;font-size:1.65rem;font-weight:800;line-height:1.15;color:var(--ink);letter-spacing:-.02em}
 .layout{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
 @media(max-width:800px){.layout{grid-template-columns:1fr}}
-@media(min-width:801px){#f{position:sticky;top:18px}}
 form{background:var(--panel);box-shadow:var(--shadow);border-radius:var(--r);padding:22px;display:grid;gap:15px}
 label{display:grid;gap:6px;font-weight:600;font-size:.88rem}
 input,select{font:inherit;color:var(--ink);background:var(--field);border:1.5px solid transparent;border-radius:12px;padding:11px 14px;width:100%;transition:border-color .15s,background .15s}
@@ -81,9 +80,17 @@ tbody tr:nth-child(-n+3) td:first-child{color:var(--accent)}
 tr.me td{background:color-mix(in srgb,var(--accent) 12%,transparent);font-weight:700}
 dialog{border:0;padding:0;background:none;max-width:94vw;max-height:94vh}
 dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
-dialog img{max-width:94vw;max-height:86vh;border-radius:18px;display:block}
-dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
+#dlg img{max-width:94vw;max-height:86vh;border-radius:18px;display:block}
+#dlg button{margin-top:10px;background:var(--panel);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.actions{display:flex;gap:16px}
+.edit:hover{color:var(--accent-strong)}
+.check{display:flex;align-items:center;gap:8px;font-weight:500}
+.check input{width:auto}
+.ghost{background:var(--field);color:var(--ink)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+#formDlg{width:min(440px,94vw);max-height:92vh;overflow:auto;border-radius:var(--r);color:var(--ink)}
+#formDlg form{box-shadow:none}
 </style>
 </head>
 <body>
@@ -113,20 +120,9 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
   <button type="button" role="tab" id="tabMine" aria-selected="true">My puzzles</button>
   <button type="button" role="tab" id="tabBoard" aria-selected="false">Leaderboard</button>
 </div>
-<div class="layout" id="mine">
-  <form id="f" novalidate>
-    <h2>Log a puzzle</h2>
-    <label>Date completed<input type="date" id="date" required></label>
-    <label>Puzzle name<input type="text" id="name" maxlength="120" placeholder="e.g. Amalfi Coast" required></label>
-    <label>Number of pieces<input type="number" id="pieces" min="1" max="100000" inputmode="numeric" placeholder="e.g. 1000" required></label>
-    <label>Photo<input type="file" id="photo" accept="image/*"></label>
-    <img class="preview" id="preview" alt="Photo preview">
-    <p class="err" id="err" role="alert"></p>
-    <button class="primary" type="submit">Save puzzle</button>
-  </form>
-  <section>
-    <div id="list" class="grid" aria-live="polite"></div>
-  </section>
+<div id="mine">
+  <div class="toolbar"><h2>Your puzzles</h2><button type="button" class="primary" id="add">+ Add puzzle</button></div>
+  <div id="list" class="grid" aria-live="polite"></div>
 </div>
 <section id="board" hidden>
   <div class="boardbar">
@@ -137,6 +133,18 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
   <p class="hint" id="bMsg" aria-live="polite"></p>
 </section>
 </main>
+<dialog id="formDlg"><form id="f" novalidate>
+    <h2 id="formTitle">Log a puzzle</h2>
+    <label>Date completed<input type="date" id="date" required></label>
+    <label>Puzzle name<input type="text" id="name" maxlength="120" placeholder="e.g. Amalfi Coast" required></label>
+    <label>Number of pieces<input type="number" id="pieces" min="1" max="100000" inputmode="numeric" placeholder="e.g. 1000" required></label>
+    <label>Photo<input type="file" id="photo" accept="image/*"></label>
+    <img class="preview" id="preview" alt="Photo preview">
+    <label class="check" id="rmWrap" hidden><input type="checkbox" id="rm"> Remove current photo</label>
+    <p class="err" id="err" role="alert"></p>
+    <button class="primary" type="submit" id="save">Save puzzle</button>
+    <button type="button" class="ghost" id="cancel">Cancel</button>
+  </form></dialog>
 <dialog id="dlg"><img id="big" alt=""><button type="button" id="close">Close</button></dialog>
 
 <script>
@@ -151,7 +159,7 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
       return r.status===204?null:r.json();
     });
   }
-  function prep(i){i.photo=i.has_photo?'/api/puzzles/'+i.id+'/photo':'';i.created=Date.parse(i.created_at)||0;return i}
+  function prep(i){i.photo=i.has_photo?'/api/puzzles/'+i.id+'/photo?v='+(i.photo_len||0):'';i.created=Date.parse(i.created_at)||0;return i}
 
   function shrink(file){return new Promise(function(res,rej){
     var fr=new FileReader();
@@ -185,7 +193,7 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
     $('tCount').textContent=items.length.toLocaleString();
     $('tPieces').textContent=total.toLocaleString();
     if(!items.length){
-      var e=el('div','empty','No puzzles logged yet. Fill in the form to add your first one.');
+      var e=el('div','empty','No puzzles logged yet. Tap Add puzzle to log your first one.');
       e.style.gridColumn='1/-1';list.appendChild(e);return;
     }
     items.forEach(function(i){
@@ -205,19 +213,44 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
       d.addEventListener('click',function(){
         if(!confirm('Delete "'+i.name+'"?'))return;
         api('/api/puzzles/'+i.id,{method:'DELETE'}).then(function(){
-          items=items.filter(function(x){return x.id!==i.id});render();
+          items=items.filter(function(x){return x.id!==i.id});if(editingId===i.id)resetForm();render();
         }).catch(function(){$('err').textContent='Could not delete that puzzle. Try again.'});
       });
-      body.appendChild(d);card.appendChild(body);list.appendChild(card);
+      var ed=el('button','del edit','Edit');ed.type='button';ed.addEventListener('click',function(){startEdit(i)});var act=el('div','actions');act.appendChild(ed);act.appendChild(d);body.appendChild(act);card.appendChild(body);list.appendChild(card);
     });
   }
 
-  var today=new Date();
-  $('date').value=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  var editingId=null,editPhotoUrl='';
+  function todayStr(){var t=new Date();return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')}
+  $('date').value=todayStr();
   var photoData='';
+  function resetForm(){
+    editingId=null;editPhotoUrl='';photoData='';
+    $('name').value='';$('pieces').value='';$('photo').value='';$('rm').checked=false;
+    $('preview').style.display='none';$('rmWrap').hidden=true;
+    $('formTitle').textContent='Log a puzzle';$('save').textContent='Save puzzle';$('err').textContent='';
+    $('date').value=todayStr();
+  }
+  function startEdit(i){
+    editingId=i.id;editPhotoUrl=i.photo||'';photoData='';
+    $('name').value=i.name;$('date').value=i.date;$('pieces').value=i.pieces;
+    $('photo').value='';$('rm').checked=false;$('err').textContent='';
+    $('formTitle').textContent='Edit puzzle';$('save').textContent='Save changes';
+    $('rmWrap').hidden=!i.photo;
+    if(i.photo){$('preview').src=i.photo;$('preview').style.display='block'}else $('preview').style.display='none';
+    $('formDlg').showModal();$('name').focus();
+  }
+  $('cancel').addEventListener('click',function(){$('formDlg').close()});
+  $('formDlg').addEventListener('close',resetForm);
+  $('formDlg').addEventListener('click',function(e){if(e.target===this)this.close()});
+  $('add').addEventListener('click',function(){resetForm();$('formDlg').showModal();$('name').focus()});
+  $('rm').addEventListener('change',function(){
+    if(this.checked){photoData='';$('photo').value='';$('preview').style.display='none'}
+    else if(editPhotoUrl&&!photoData){$('preview').src=editPhotoUrl;$('preview').style.display='block'}
+  });
   $('photo').addEventListener('change',function(){
     var f=this.files&&this.files[0];photoData='';$('preview').style.display='none';$('err').textContent='';
-    if(!f)return;
+    if(!f){if(editingId&&editPhotoUrl&&!$('rm').checked){$('preview').src=editPhotoUrl;$('preview').style.display='block'}return}
     shrink(f).then(function(d){photoData=d;$('preview').src=d;$('preview').style.display='block'})
       .catch(function(){$('err').textContent='That file could not be read as an image. Try a JPG or PNG.'});
   });
@@ -225,13 +258,15 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
     e.preventDefault();
     var name=$('name').value.trim(),date=$('date').value,pieces=parseInt($('pieces').value,10);
     if(!date||!name||!(pieces>0)){$('err').textContent='Enter a date, a puzzle name and the number of pieces.';return}
-    var btn=e.target.querySelector('.primary');btn.disabled=true;$('err').textContent='';
-    api('/api/puzzles',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({date:date,name:name,pieces:pieces,photo:photoData})})
+    var btn=$('save');btn.disabled=true;$('err').textContent='';
+    var editing=editingId,body={date:date,name:name,pieces:pieces};
+    if(editing){if($('rm').checked)body.removePhoto=true;else if(photoData)body.photo=photoData}
+    else body.photo=photoData;
+    api(editing?'/api/puzzles/'+editing:'/api/puzzles',{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
     .then(function(row){
-      items.push(prep(row));
-      $('name').value='';$('pieces').value='';$('photo').value='';photoData='';$('preview').style.display='none';
-      render();$('name').focus();
+      row=prep(row);
+      if(editing)items=items.map(function(x){return x.id===editing?row:x});else items.push(row);
+      resetForm();$('formDlg').close();render();
     }).catch(function(){$('err').textContent='Could not save the puzzle. Check your connection and try again.'})
     .then(function(){btn.disabled=false});
   });
@@ -272,7 +307,7 @@ dialog button{margin-top:10px;background:var(--panel);color:var(--ink)}
   $('tabLogin').addEventListener('click',function(){setMode('login')});
   $('tabSignup').addEventListener('click',function(){setMode('signup')});
   function showAuth(){
-    items=[];$('app').hidden=true;$('auth').hidden=false;$('p').value='';setMode(mode);
+    if($('formDlg').open)$('formDlg').close();resetForm();items=[];$('app').hidden=true;$('auth').hidden=false;$('p').value='';setMode(mode);
   }
   function showApp(name){tab('mine');
     $('who').textContent=name;$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
