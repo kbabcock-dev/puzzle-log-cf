@@ -91,6 +91,11 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 #formDlg{width:min(440px,94vw);max-height:92vh;overflow:auto;border-radius:var(--r);color:var(--ink)}
 #formDlg form{box-shadow:none}
+.opt{color:var(--mute);font-weight:500}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pills .pieces{margin-top:0}
+.pieces.miss{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--mute)}
+.pieces.miss.some{background:color-mix(in srgb,#e0a526 26%,transparent);color:var(--ink)}
 </style>
 </head>
 <body>
@@ -137,7 +142,9 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
     <h2 id="formTitle">Log a puzzle</h2>
     <label>Date completed<input type="date" id="date" required></label>
     <label>Puzzle name<input type="text" id="name" maxlength="120" placeholder="e.g. Amalfi Coast" required></label>
+    <label>Artist <span class="opt">(optional)</span><input type="text" id="artist" maxlength="120" placeholder="e.g. Monet"></label>
     <label>Number of pieces<input type="number" id="pieces" min="1" max="100000" inputmode="numeric" placeholder="e.g. 1000" required></label>
+    <label>Number of missing pieces<input type="number" id="missing" min="0" inputmode="numeric" value="0"></label>
     <label>Photo<input type="file" id="photo" accept="image/*"></label>
     <img class="preview" id="preview" alt="Photo preview">
     <label class="check" id="rmWrap" hidden><input type="checkbox" id="rm"> Remove current photo</label>
@@ -208,7 +215,12 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
       var body=el('div','body');
       body.appendChild(el('h3',null,i.name));
       body.appendChild(el('div','meta',fmtDate(i.date)));
-      body.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
+      if(i.artist)body.appendChild(el('div','meta','Artist: '+i.artist));
+      var pills=el('div','pills');
+      pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
+      var mp=i.missing_pieces||0;
+      pills.appendChild(el('span','pieces miss'+(mp>0?' some':''),mp.toLocaleString()+' missing'));
+      body.appendChild(pills);
       var d=el('button','del','Delete');d.type='button';
       d.addEventListener('click',function(){
         if(!confirm('Delete "'+i.name+'"?'))return;
@@ -226,14 +238,14 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
   var photoData='';
   function resetForm(){
     editingId=null;editPhotoUrl='';photoData='';
-    $('name').value='';$('pieces').value='';$('photo').value='';$('rm').checked=false;
+    $('name').value='';$('artist').value='';$('pieces').value='';$('missing').value='0';$('photo').value='';$('rm').checked=false;
     $('preview').style.display='none';$('rmWrap').hidden=true;
     $('formTitle').textContent='Log a puzzle';$('save').textContent='Save puzzle';$('err').textContent='';
     $('date').value=todayStr();
   }
   function startEdit(i){
     editingId=i.id;editPhotoUrl=i.photo||'';photoData='';
-    $('name').value=i.name;$('date').value=i.date;$('pieces').value=i.pieces;
+    $('name').value=i.name;$('artist').value=i.artist||'';$('date').value=i.date;$('pieces').value=i.pieces;$('missing').value=i.missing_pieces||0;
     $('photo').value='';$('rm').checked=false;$('err').textContent='';
     $('formTitle').textContent='Edit puzzle';$('save').textContent='Save changes';
     $('rmWrap').hidden=!i.photo;
@@ -258,8 +270,10 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
     e.preventDefault();
     var name=$('name').value.trim(),date=$('date').value,pieces=parseInt($('pieces').value,10);
     if(!date||!name||!(pieces>0)){$('err').textContent='Enter a date, a puzzle name and the number of pieces.';return}
+    var miss=parseInt($('missing').value,10)||0;
+    if(miss<0||miss>pieces){$('err').textContent='Missing pieces must be between 0 and the total number of pieces.';return}
     var btn=$('save');btn.disabled=true;$('err').textContent='';
-    var editing=editingId,body={date:date,name:name,pieces:pieces};
+    var editing=editingId,body={date:date,name:name,artist:$('artist').value.trim(),pieces:pieces,missing_pieces:miss};
     if(editing){if($('rm').checked)body.removePhoto=true;else if(photoData)body.photo=photoData}
     else body.photo=photoData;
     api(editing?'/api/puzzles/'+editing:'/api/puzzles',{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
