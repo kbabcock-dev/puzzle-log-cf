@@ -96,6 +96,7 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
 .pills .pieces{margin-top:0}
 .pieces.miss{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--mute)}
 .pieces.miss.some{background:color-mix(in srgb,#e0a526 26%,transparent);color:var(--ink)}
+.meta.artist{font-weight:600;color:var(--ink);opacity:.75}
 </style>
 </head>
 <body>
@@ -214,8 +215,8 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
       }else card.appendChild(el('div','nophoto','No photo'));
       var body=el('div','body');
       body.appendChild(el('h3',null,i.name));
+      if(i.artist)body.appendChild(el('div','meta artist',i.artist));
       body.appendChild(el('div','meta',fmtDate(i.date)));
-      if(i.artist)body.appendChild(el('div','meta','Artist: '+i.artist));
       var pills=el('div','pills');
       pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
       var mp=i.missing_pieces||0;
