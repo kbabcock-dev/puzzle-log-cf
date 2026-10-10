@@ -97,6 +97,11 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
 .pieces.miss{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--mute)}
 .pieces.miss.some{background:color-mix(in srgb,#e0a526 26%,transparent);color:var(--ink)}
 .meta.artist{font-weight:600;color:var(--ink);opacity:.75}
+.back{margin-bottom:16px;padding:9px 14px;font-size:.9rem}
+tr.click{cursor:pointer}
+tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.ulink{background:none;padding:0;color:inherit;font:inherit;font-weight:700;text-align:left;border-radius:6px}
+.ulink:hover{color:var(--accent-strong);text-decoration:underline}
 </style>
 </head>
 <body>
@@ -136,7 +141,14 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
     <label>Rank by<select id="bSort"><option value="pieces">Pieces</option><option value="puzzles">Puzzles</option></select></label>
   </div>
   <div class="tablewrap"><table><thead><tr><th>#</th><th>Player</th><th>Puzzles</th><th>Pieces</th></tr></thead><tbody id="bBody"></tbody></table></div>
+  <p class="hint">Click a player to see their puzzles.</p>
   <p class="hint" id="bMsg" aria-live="polite"></p>
+</section>
+<section id="theirs" hidden>
+  <button type="button" class="ghost back" id="back">&larr; Back to leaderboard</button>
+  <div class="toolbar"><h2 id="tTitle"></h2><span class="hint" id="tStats"></span></div>
+  <div id="tList" class="grid"></div>
+  <p class="hint" id="tMsg" aria-live="polite"></p>
 </section>
 </main>
 <dialog id="formDlg"><form id="f" novalidate>
@@ -290,7 +302,7 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
 
   function tab(which){
     var b=which==='board';
-    $('mine').hidden=b;$('board').hidden=!b;
+    $('mine').hidden=b;$('board').hidden=!b;$('theirs').hidden=true;
     $('tabMine').setAttribute('aria-selected',!b);$('tabBoard').setAttribute('aria-selected',b);
     if(b)loadBoard();
   }
@@ -299,13 +311,49 @@ dialog::backdrop{background:rgba(8,12,24,.8);backdrop-filter:blur(4px)}
     api('/api/leaderboard?period='+$('bPeriod').value+'&sort='+$('bSort').value).then(function(rows){
       var tb=$('bBody');tb.textContent='';
       rows.forEach(function(r,i){
-        var tr=document.createElement('tr');if(r.me)tr.className='me';
-        [i+1,r.username+(r.me?' (you)':''),r.puzzles.toLocaleString(),r.pieces.toLocaleString()].forEach(function(v){tr.appendChild(el('td',null,String(v)))});
+        var tr=document.createElement('tr');tr.className='click'+(r.me?' me':'');
+        [i+1,null,r.puzzles.toLocaleString(),r.pieces.toLocaleString()].forEach(function(v,k){
+          var td=el('td',null,v==null?'':String(v));
+          if(k===1){var b=el('button','ulink',r.username+(r.me?' (you)':''));b.type='button';td.appendChild(b)}
+          tr.appendChild(td);
+        });
+        tr.addEventListener('click',function(){if(r.me)tab('mine');else openUser(r.username)});
         tb.appendChild(tr);
       });
       $('bMsg').textContent=rows.length?'':'No puzzles logged for this period yet.';
     }).catch(function(){$('bMsg').textContent='Could not load the leaderboard.'});
   }
+  function viewCard(i){
+    var card=el('article','card');
+    if(i.photo){
+      var b=el('button','ph');b.type='button';b.setAttribute('aria-label','View photo of '+i.name);
+      var im=document.createElement('img');im.src=i.photo;im.alt=i.name;im.className='ph';im.loading='lazy';im.style.cursor='zoom-in';
+      b.appendChild(im);
+      b.addEventListener('click',function(){$('big').src=i.photo;$('big').alt=i.name;$('dlg').showModal()});
+      card.appendChild(b);
+    }else card.appendChild(el('div','nophoto','No photo'));
+    var body=el('div','body');
+    body.appendChild(el('h3',null,i.name));
+    if(i.artist)body.appendChild(el('div','meta artist',i.artist));
+    body.appendChild(el('div','meta',fmtDate(i.date)));
+    var pills=el('div','pills');
+    pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
+    var mp=i.missing_pieces||0;
+    pills.appendChild(el('span','pieces miss'+(mp>0?' some':''),mp.toLocaleString()+' missing'));
+    body.appendChild(pills);card.appendChild(body);return card;
+  }
+  function openUser(name){
+    $('board').hidden=true;$('theirs').hidden=false;
+    $('tTitle').textContent=name+"'s puzzles";$('tStats').textContent='';$('tList').textContent='';$('tMsg').textContent='Loading...';
+    api('/api/users/'+encodeURIComponent(name)+'/puzzles').then(function(d){
+      var rows=d.puzzles.map(prep),total=0;
+      rows.forEach(function(r){total+=r.pieces});
+      $('tStats').textContent=rows.length+' puzzles \u00b7 '+total.toLocaleString()+' pieces';
+      $('tMsg').textContent=rows.length?'':'No puzzles logged yet.';
+      rows.forEach(function(r){$('tList').appendChild(viewCard(r))});
+    }).catch(function(){$('tMsg').textContent='Could not load these puzzles.'});
+  }
+  $('back').addEventListener('click',function(){$('theirs').hidden=true;$('board').hidden=false});
   $('tabMine').addEventListener('click',function(){tab('mine')});
   $('tabBoard').addEventListener('click',function(){tab('board')});
   $('bPeriod').addEventListener('change',loadBoard);

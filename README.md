@@ -35,4 +35,4 @@ Add two repository secrets (GitHub repo > Settings > Secrets and variables > Act
 `DATABASE_URL` stays in the Pages project (set once with `wrangler pages secret put`), so it is kept between deploys.
 
 ## Leaderboard
-The Leaderboard tab shows every user's total puzzles and pieces (all time or this month), ranked by pieces or by puzzles. Signed-in users can see other people's usernames and totals, but not their puzzle names or photos.
+The Leaderboard tab shows every user's total puzzles and pieces (all time or this month), ranked by pieces or by puzzles. Signed-in users can see other people's usernames and totals, and can click a player to see their puzzle list and photos.
