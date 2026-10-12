@@ -6,17 +6,17 @@
 <title>Puzzle Log</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
 <style>
-:root{--bg:#f5f6fa;--panel:#fff;--ink:#0f1729;--mute:#66728a;--line:#e5e8f0;--field:#f1f3f9;--accent:#cf3a18;--accent-ink:#fff;--accent-strong:#a82d12;--danger:#d1382b;--r:18px;
---shadow:0 1px 2px rgba(15,23,41,.05),0 8px 24px rgba(15,23,41,.06);
+:root{--bg:#edf1ea;--panel:#fff;--ink:#1f2d24;--mute:#5b6e60;--line:#d5dfd2;--field:#e6ece3;--accent:#3d5a45;--accent-ink:#fff;--accent-strong:#3d5a45;--sage:#a2c4a0;--danger:#d1382b;--r:18px;
+--shadow:0 1px 2px rgba(31,45,36,.05),0 8px 24px rgba(31,45,36,.06);
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0f1e;--panel:#131b30;--ink:#eef1f8;--mute:#93a0ba;--line:#222d48;--field:#0d1426;--accent:#ff6a47;--accent-ink:#1a0a05;--accent-strong:#ff9a82;--danger:#ff8a7d;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}}
-:root[data-theme="dark"]{--bg:#0a0f1e;--panel:#131b30;--ink:#eef1f8;--mute:#93a0ba;--line:#222d48;--field:#0d1426;--accent:#ff6a47;--accent-ink:#1a0a05;--accent-strong:#ff9a82;--danger:#ff8a7d;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111913;--panel:#1a251d;--ink:#edf3ea;--mute:#9bb0a0;--line:#2a3a2e;--field:#131d16;--accent:#a2c4a0;--accent-ink:#13201a;--accent-strong:#a2c4a0;--sage:#2c4a35;--danger:#ff8a7d;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--bg:#111913;--panel:#1a251d;--ink:#edf3ea;--mute:#9bb0a0;--line:#2a3a2e;--field:#131d16;--accent:#a2c4a0;--accent-ink:#13201a;--accent-strong:#a2c4a0;--sage:#2c4a35;--danger:#ff8a7d;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;color:var(--ink);font:400 16px/1.55 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;
-background:radial-gradient(900px 420px at 8% -8%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 70%),radial-gradient(700px 380px at 100% 0,color-mix(in srgb,var(--ink) 6%,transparent),transparent 70%),var(--bg);background-attachment:fixed}
-main{max-width:1040px;margin:0 auto;padding:30px 20px 64px}
+background:radial-gradient(900px 420px at 8% -8%,color-mix(in srgb,var(--sage) 55%,transparent),transparent 70%),radial-gradient(700px 380px at 100% 0,color-mix(in srgb,var(--ink) 6%,transparent),transparent 70%),var(--bg);background-attachment:fixed}
+main{max-width:1040px;margin:0 auto;padding:24px 20px 120px}
 h1,h2,h3{margin:0;letter-spacing:-.02em}
 h1{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800;line-height:1.1;display:flex;align-items:center}
 h2{font-size:1.2rem;font-weight:700}
@@ -102,6 +102,40 @@ tr.click{cursor:pointer}
 tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
 .ulink{background:none;padding:0;color:inherit;font:inherit;font-weight:700;text-align:left;border-radius:6px}
 .ulink:hover{color:var(--accent-strong);text-decoration:underline}
+.stats{margin-bottom:22px}
+.userbar{display:flex;align-items:center;gap:10px;background:var(--panel);box-shadow:var(--shadow);border-radius:99px;padding:5px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:.95rem;flex:none}
+.who{font-weight:700;font-size:.92rem;max-width:16ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout{background:var(--field);color:var(--ink);padding:8px 16px;border-radius:99px;font-size:.85rem;font-weight:600}
+.logout:hover{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+#hello{font-size:1.45rem}
+#home{max-width:600px;margin:0 auto}
+.ov{margin:4px 0 12px;font-size:1.3rem}
+.statrow{display:flex;gap:12px}
+.stat{flex:1;min-width:0;background:var(--panel);border-radius:20px;padding:14px;box-shadow:var(--shadow)}
+.stat .sl{font-size:.8rem;color:var(--mute);font-weight:500}
+.stat b{display:block;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;margin:6px 0 4px}
+.sn{font-size:.8rem;color:var(--mute)}
+.chip{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent-strong);border-radius:99px;padding:2px 8px;font-weight:700;margin-right:5px}
+.panel{background:var(--panel);border-radius:24px;padding:16px;box-shadow:var(--shadow);margin-top:14px}
+.sec{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.sec h2{font-size:1rem;font-weight:700}
+.small{height:44px;padding:0 16px;border-radius:22px;font-size:.85rem}
+.toprow{display:flex;flex-wrap:wrap;gap:6px}
+.who{display:flex;flex-direction:column;align-items:center;gap:6px;width:58px;background:none;padding:0;font-size:.75rem;font-weight:500;color:var(--ink)}
+.who span:last-child{max-width:58px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pav{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.95rem;color:#1f2d24}
+.hero{min-height:168px;border-radius:20px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;background:linear-gradient(135deg,#a2c4a0,#dfe7dc 52%,#6a8a6c);background-size:cover;background-position:center;color:#1f2d24}
+.hero.photo{color:#fff}
+.hero h3{font-size:1.3rem;margin:0}
+.hero .meta{color:inherit;opacity:.85;font-weight:600}
+.hero .pills{margin-top:10px}
+.hero .pieces:not(.miss){background:rgba(255,255,255,.82);color:#1f2d24}
+.fnav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100% - 32px));height:64px;border-radius:32px;background:#3d5a45;display:flex;align-items:center;justify-content:space-between;padding:0 8px;box-shadow:0 10px 24px rgba(31,45,36,.3);z-index:20}
+.fnav button{height:48px;min-width:48px;border-radius:24px;background:none;color:#dfe7dc;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-weight:700;font-size:.9rem}
+.fnav button .lbl{display:none}
+.fnav button[aria-current=page]{background:#f1f3ee;color:#1f2d24}
+.fnav button[aria-current=page] .lbl{display:inline}
 </style>
 </head>
 <body>
@@ -124,14 +158,19 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
 </section>
 <main id="app" hidden>
 <header>
-  <h1><svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 6h8.5a3.5 3.5 0 1 1 7 0H26v8.5a3.5 3.5 0 1 0 0 7V26H6z" fill="currentColor"/></svg>Puzzle Log</h1>
-  <div class="totals"><div><b id="tCount">0</b>puzzles</div><div><b id="tPieces">0</b>pieces placed</div><div><b id="who" style="font-size:1.05rem"></b><button type="button" id="logout" class="del">Log out</button></div></div>
+  <h1 id="hello">Hello</h1>
+  <div class="userbar"><span class="avatar" id="avatar" aria-hidden="true"></span><button type="button" id="logout" class="logout">Log out</button></div>
 </header>
-<div class="tabs apptabs" role="tablist">
-  <button type="button" role="tab" id="tabMine" aria-selected="true">My puzzles</button>
-  <button type="button" role="tab" id="tabBoard" aria-selected="false">Leaderboard</button>
-</div>
-<div id="mine">
+<section id="home">
+  <h2 class="ov">Overview</h2>
+  <div class="statrow">
+    <div class="stat"><div class="sl">Puzzles</div><b id="tCount">0</b><div class="sn"><span class="chip" id="tCountM">0</span>this month</div></div>
+    <div class="stat"><div class="sl">Pieces placed</div><b id="tPieces">0</b><div class="sn"><span class="chip" id="tPiecesM">0</span>this month</div></div>
+  </div>
+  <div class="panel"><div class="sec"><h2>Top puzzlers</h2></div><div class="toprow" id="topRow"></div></div>
+  <div class="panel"><div class="sec"><h2>Latest puzzle</h2><button type="button" class="primary small" id="addHome">+ Add puzzle</button></div><div id="latest"></div></div>
+</section>
+<div id="mine" hidden>
   <div class="toolbar"><h2>Your puzzles</h2><button type="button" class="primary" id="add">+ Add puzzle</button></div>
   <div id="list" class="grid" aria-live="polite"></div>
 </div>
@@ -150,6 +189,11 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
   <div id="tList" class="grid"></div>
   <p class="hint" id="tMsg" aria-live="polite"></p>
 </section>
+<nav class="fnav" aria-label="Main">
+  <button type="button" id="navHome" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span class="lbl">Home</span></button>
+  <button type="button" id="navMine" aria-label="My puzzles"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h5.5a2.5 2.5 0 1 1 5 0H19v5.5a2.5 2.5 0 1 0 0 5V19H5z"/></svg><span class="lbl">My puzzles</span></button>
+  <button type="button" id="navBoard" aria-label="Leaderboard"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4a3 3 0 0 0 4 4M16 6h4a3 3 0 0 1-4 4M12 13v4M8 20h8"/></svg><span class="lbl">Leaderboard</span></button>
+</nav>
 </main>
 <dialog id="formDlg"><form id="f" novalidate>
     <h2 id="formTitle">Log a puzzle</h2>
@@ -212,6 +256,7 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
     items.forEach(function(i){total+=i.pieces});
     $('tCount').textContent=items.length.toLocaleString();
     $('tPieces').textContent=total.toLocaleString();
+    renderHome();
     if(!items.length){
       var e=el('div','empty','No puzzles logged yet. Tap Add puzzle to log your first one.');
       e.style.gridColumn='1/-1';list.appendChild(e);return;
@@ -301,10 +346,45 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
   $('dlg').addEventListener('click',function(e){if(e.target===this)this.close()});
 
   function tab(which){
-    var b=which==='board';
-    $('mine').hidden=b;$('board').hidden=!b;$('theirs').hidden=true;
-    $('tabMine').setAttribute('aria-selected',!b);$('tabBoard').setAttribute('aria-selected',b);
-    if(b)loadBoard();
+    ['home','mine','board'].forEach(function(k){$(k).hidden=(k!==which)});
+    $('theirs').hidden=true;
+    [['navHome','home'],['navMine','mine'],['navBoard','board']].forEach(function(p){$(p[0]).setAttribute('aria-current',p[1]===which?'page':'false')});
+    if(which==='board')loadBoard();
+    if(which==='home')loadTop();
+    window.scrollTo(0,0);
+  }
+  function loadTop(){
+    api('/api/leaderboard?period=all&sort=pieces').then(function(rows){
+      var row=$('topRow');row.textContent='';
+      var cols=['#a2c4a0','#dfe7dc','#6a8a6c','#3d5a45'];
+      rows.slice(0,4).forEach(function(r,k){
+        var b=el('button','who');b.type='button';
+        var a=el('span','pav',r.username.slice(0,2).toUpperCase());a.style.background=cols[k];if(k>1)a.style.color='#fff';
+        b.appendChild(a);b.appendChild(el('span',null,r.me?'You':r.username));
+        b.addEventListener('click',function(){if(r.me)tab('mine');else{tab('board');openUser(r.username)}});
+        row.appendChild(b);
+      });
+      var more=el('button','who');more.type='button';
+      var ma=el('span','pav','\u2192');ma.style.background='var(--field)';ma.style.color='var(--ink)';
+      more.appendChild(ma);more.appendChild(el('span',null,'More'));
+      more.addEventListener('click',function(){tab('board')});row.appendChild(more);
+    }).catch(function(){});
+  }
+  function renderHome(){
+    var n=new Date(),ym=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'),mc=0,mp=0;
+    items.forEach(function(i){if(i.date.slice(0,7)===ym){mc++;mp+=i.pieces}});
+    $('tCountM').textContent='+'+mc;$('tPiecesM').textContent='+'+mp.toLocaleString();
+    var L=$('latest');L.textContent='';
+    if(!items.length){L.appendChild(el('div','empty','No puzzles yet. Tap Add puzzle to log your first one.'));return}
+    var i=items[0],h=el('div','hero'+(i.photo?' photo':''));
+    if(i.photo)h.style.backgroundImage='linear-gradient(180deg,rgba(18,28,22,.1) 15%,rgba(18,28,22,.8)),url("'+i.photo+'")';
+    h.appendChild(el('div','meta','Completed '+fmtDate(i.date)));
+    var b=el('div');b.appendChild(el('h3',null,i.name));
+    if(i.artist)b.appendChild(el('div','meta',i.artist));
+    var pills=el('div','pills'),mp2=i.missing_pieces||0;
+    pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
+    pills.appendChild(el('span','pieces miss'+(mp2>0?' some':''),mp2.toLocaleString()+' missing'));
+    b.appendChild(pills);h.appendChild(b);L.appendChild(h);
   }
   function loadBoard(){
     $('bMsg').textContent='Loading...';
@@ -354,8 +434,10 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
     }).catch(function(){$('tMsg').textContent='Could not load these puzzles.'});
   }
   $('back').addEventListener('click',function(){$('theirs').hidden=true;$('board').hidden=false});
-  $('tabMine').addEventListener('click',function(){tab('mine')});
-  $('tabBoard').addEventListener('click',function(){tab('board')});
+  $('navHome').addEventListener('click',function(){tab('home')});
+  $('navMine').addEventListener('click',function(){tab('mine')});
+  $('navBoard').addEventListener('click',function(){tab('board')});
+  $('addHome').addEventListener('click',function(){resetForm();$('formDlg').showModal();$('name').focus()});
   $('bPeriod').addEventListener('change',loadBoard);
   $('bSort').addEventListener('change',loadBoard);
   var mode='login';
@@ -372,8 +454,8 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
   function showAuth(){
     if($('formDlg').open)$('formDlg').close();resetForm();items=[];$('app').hidden=true;$('auth').hidden=false;$('p').value='';setMode(mode);
   }
-  function showApp(name){tab('mine');
-    $('who').textContent=name;$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
+  function showApp(name){tab('home');
+    $('hello').textContent='Hello, '+name;$('avatar').textContent=name.charAt(0).toUpperCase();$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
     api('/api/puzzles').then(function(r){items=r.map(prep);render()})
       .catch(function(){$('err').textContent='Could not load your puzzles. Refresh to try again.'});
   }
