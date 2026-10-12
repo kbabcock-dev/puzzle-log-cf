@@ -455,7 +455,7 @@ tr.click:hover td{background:color-mix(in srgb,var(--ink) 5%,transparent)}
     if($('formDlg').open)$('formDlg').close();resetForm();items=[];$('app').hidden=true;$('auth').hidden=false;$('p').value='';setMode(mode);
   }
   function showApp(name){tab('home');
-    $('hello').textContent='Hello, '+name;$('avatar').textContent=name.charAt(0).toUpperCase();$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
+    $('hello').textContent='Hello, '+name.toUpperCase();$('avatar').textContent=name.charAt(0).toUpperCase();$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
     api('/api/puzzles').then(function(r){items=r.map(prep);render()})
       .catch(function(){$('err').textContent='Could not load your puzzles. Refresh to try again.'});
   }
