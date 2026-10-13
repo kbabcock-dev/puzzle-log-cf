@@ -20,12 +20,13 @@ CREATE TABLE IF NOT EXISTS puzzles (
   artist     TEXT,
   pieces     INTEGER NOT NULL CHECK (pieces > 0),
   missing_pieces INTEGER NOT NULL DEFAULT 0 CHECK (missing_pieces >= 0),
+  rating     INTEGER NOT NULL DEFAULT 0 CHECK (rating BETWEEN 0 AND 5),
   photo      TEXT,          -- base64 image data
   photo_type TEXT,          -- e.g. image/jpeg
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Already have a puzzles table without artist/missing_pieces? Run migrations/2-artist-and-missing-pieces.sql.
+-- Already have a puzzles table from an earlier version? Run migrations/2-artist-and-missing-pieces.sql and migrations/3-rating.sql.
 -- If you already created the puzzles table from the earliest version, also run:
 -- ALTER TABLE puzzles ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
 -- Old rows have no owner and will not show up. After creating your account you can claim them:

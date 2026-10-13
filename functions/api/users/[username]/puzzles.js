@@ -7,7 +7,7 @@ export async function onRequestGet({ params, env }) {
   try {
     const sql = db(env);
     const rows = await sql`
-      SELECT p.id, p.date::text AS date, p.name, p.artist, p.pieces, p.missing_pieces,
+      SELECT p.id, p.date::text AS date, p.name, p.artist, p.pieces, p.missing_pieces, p.rating,
              (p.photo IS NOT NULL) AS has_photo, length(p.photo) AS photo_len, p.created_at
       FROM puzzles p JOIN users u ON u.id = p.user_id
       WHERE u.username = ${username}

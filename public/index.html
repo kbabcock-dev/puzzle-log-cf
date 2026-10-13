@@ -162,6 +162,17 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
   .boardbar label{min-width:0;flex:1}
   .boardbar select{width:100%}
 }
+.stars{display:inline-flex;gap:2px;align-items:center;margin:3px 0 2px}
+.stars svg{width:16px;height:16px;fill:#e0a526;stroke:#e0a526;stroke-width:1.5;stroke-linejoin:round}
+.stars svg.e{fill:none;stroke:color-mix(in srgb,var(--mute) 55%,transparent)}
+.stars.dk svg{fill:#1f2d24;stroke:#1f2d24}
+.stars.dk svg.e{fill:none;stroke:#1f2d24;opacity:.45}
+.ratehead{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.88rem}
+.linkbtn{background:none;padding:6px;color:var(--mute);font-size:.82rem;font-weight:500;text-decoration:underline}
+.ratepick{display:flex;gap:6px;margin-top:6px}
+.ratepick button{background:none;padding:0;width:44px;height:44px;border-radius:10px;display:grid;place-items:center}
+.ratepick svg{width:34px;height:34px;fill:none;stroke:var(--mute);stroke-width:1.5;stroke-linejoin:round}
+.ratepick button.on svg{fill:#e0a526;stroke:#e0a526}
 </style>
 </head>
 <body>
@@ -228,6 +239,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     <label>Artist <span class="opt">(optional)</span><input type="text" id="artist" maxlength="120" placeholder="e.g. Monet"></label>
     <label>Number of pieces<input type="number" id="pieces" min="1" max="100000" inputmode="numeric" placeholder="e.g. 1000" required></label>
     <label>Number of missing pieces<input type="number" id="missing" min="0" inputmode="numeric" value="0"></label>
+    <div role="group" aria-label="Rating"><div class="ratehead"><span>Rating</span><button type="button" class="linkbtn" id="rateClear">Clear</button></div><div class="ratepick" id="ratePick"></div></div>
     <label>Photo<input type="file" id="photo" accept="image/*"></label>
     <img class="preview" id="preview" alt="Photo preview">
     <label class="check" id="rmWrap" hidden><input type="checkbox" id="rm"> Remove current photo</label>
@@ -274,6 +286,25 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
   }
   function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+  var STAR='<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 17l-5.2 2.7 1-5.9L3.5 9.7l5.9-.8z"/>',rating=0;
+  function cap(s){s=String(s||'');return s.charAt(0).toUpperCase()+s.slice(1)}
+  function starRow(n,cls){
+    var s=el('span','stars'+(cls?' '+cls:''));s.setAttribute('role','img');s.setAttribute('aria-label',n+' out of 5 stars');
+    var h='';for(var k=0;k<5;k++)h+='<svg viewBox="0 0 24 24" aria-hidden="true"'+(k<n?'':' class="e"')+'>'+STAR+'</svg>';
+    s.innerHTML=h;return s;
+  }
+  function setRating(n){
+    rating=n;
+    Array.prototype.forEach.call($('ratePick').children,function(b,k){b.className=k<n?'on':'';b.setAttribute('aria-pressed',k+1===n)});
+  }
+  (function(){
+    for(var k=1;k<=5;k++){(function(k){
+      var b=el('button');b.type='button';b.setAttribute('aria-label',k+(k===1?' star':' stars'));
+      b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+STAR+'</svg>';
+      b.addEventListener('click',function(){setRating(k)});$('ratePick').appendChild(b);
+    })(k)}
+    $('rateClear').addEventListener('click',function(){setRating(0)});
+  })();
 
   function render(){
     items.sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.created-a.created});
@@ -299,6 +330,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
       var body=el('div','body');
       body.appendChild(el('h3',null,i.name));
       if(i.artist)body.appendChild(el('div','meta artist',i.artist));
+      if(i.rating>0)body.appendChild(starRow(i.rating));
       body.appendChild(el('div','meta',fmtDate(i.date)));
       var pills=el('div','pills');
       pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
@@ -321,14 +353,14 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
   $('date').value=todayStr();
   var photoData='';
   function resetForm(){
-    editingId=null;editPhotoUrl='';photoData='';
+    editingId=null;editPhotoUrl='';photoData='';setRating(0);
     $('name').value='';$('artist').value='';$('pieces').value='';$('missing').value='0';$('photo').value='';$('rm').checked=false;
     $('preview').style.display='none';$('rmWrap').hidden=true;
     $('formTitle').textContent='Log a puzzle';$('save').textContent='Save puzzle';$('err').textContent='';
     $('date').value=todayStr();
   }
   function startEdit(i){
-    editingId=i.id;editPhotoUrl=i.photo||'';photoData='';
+    editingId=i.id;editPhotoUrl=i.photo||'';photoData='';setRating(i.rating||0);
     $('name').value=i.name;$('artist').value=i.artist||'';$('date').value=i.date;$('pieces').value=i.pieces;$('missing').value=i.missing_pieces||0;
     $('photo').value='';$('rm').checked=false;$('err').textContent='';
     $('formTitle').textContent='Edit puzzle';$('save').textContent='Save changes';
@@ -357,7 +389,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     var miss=parseInt($('missing').value,10)||0;
     if(miss<0||miss>pieces){$('err').textContent='Missing pieces must be between 0 and the total number of pieces.';return}
     var btn=$('save');btn.disabled=true;$('err').textContent='';
-    var editing=editingId,body={date:date,name:name,artist:$('artist').value.trim(),pieces:pieces,missing_pieces:miss};
+    var editing=editingId,body={date:date,name:name,artist:$('artist').value.trim(),pieces:pieces,missing_pieces:miss,rating:rating};
     if(editing){if($('rm').checked)body.removePhoto=true;else if(photoData)body.photo=photoData}
     else body.photo=photoData;
     api(editing?'/api/puzzles/'+editing:'/api/puzzles',{method:editing?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
@@ -386,7 +418,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
       rows.slice(0,4).forEach(function(r,k){
         var b=el('button','who');b.type='button';
         var a=el('span','pav',r.username.slice(0,2).toUpperCase());a.style.background=cols[k];if(k>1)a.style.color='#fff';
-        b.appendChild(a);b.appendChild(el('span',null,r.me?'You':r.username));
+        b.appendChild(a);b.appendChild(el('span',null,r.me?'You':cap(r.username)));
         b.addEventListener('click',function(){if(r.me)tab('mine');else{tab('board');openUser(r.username)}});
         row.appendChild(b);
       });
@@ -407,6 +439,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     h.appendChild(el('div','meta','Completed '+fmtDate(i.date)));
     var b=el('div');b.appendChild(el('h3',null,i.name));
     if(i.artist)b.appendChild(el('div','meta',i.artist));
+    if(i.rating>0)b.appendChild(starRow(i.rating,i.photo?'':'dk'));
     var pills=el('div','pills'),mp2=i.missing_pieces||0;
     pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
     pills.appendChild(el('span','pieces miss'+(mp2>0?' some':''),mp2.toLocaleString()+' missing'));
@@ -420,7 +453,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
         var tr=document.createElement('tr');tr.className='click'+(r.me?' me':'');
         [i+1,null,r.puzzles.toLocaleString(),r.pieces.toLocaleString()].forEach(function(v,k){
           var td=el('td',null,v==null?'':String(v));
-          if(k===1){var b=el('button','ulink',r.username+(r.me?' (you)':''));b.type='button';td.appendChild(b)}
+          if(k===1){var b=el('button','ulink',cap(r.username)+(r.me?' (you)':''));b.type='button';td.appendChild(b)}
           tr.appendChild(td);
         });
         tr.addEventListener('click',function(){if(r.me)tab('mine');else openUser(r.username)});
@@ -441,6 +474,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     var body=el('div','body');
     body.appendChild(el('h3',null,i.name));
     if(i.artist)body.appendChild(el('div','meta artist',i.artist));
+      if(i.rating>0)body.appendChild(starRow(i.rating));
     body.appendChild(el('div','meta',fmtDate(i.date)));
     var pills=el('div','pills');
     pills.appendChild(el('span','pieces',i.pieces.toLocaleString()+' pieces'));
@@ -450,7 +484,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
   }
   function openUser(name){
     $('board').hidden=true;$('theirs').hidden=false;
-    $('tTitle').textContent=name+"'s puzzles";$('tStats').textContent='';$('tList').textContent='';$('tMsg').textContent='Loading...';
+    $('tTitle').textContent=cap(name)+"'s puzzles";$('tStats').textContent='';$('tList').textContent='';$('tMsg').textContent='Loading...';
     api('/api/users/'+encodeURIComponent(name)+'/puzzles').then(function(d){
       var rows=d.puzzles.map(prep),total=0;
       rows.forEach(function(r){total+=r.pieces});
@@ -481,7 +515,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     if($('formDlg').open)$('formDlg').close();resetForm();items=[];$('app').hidden=true;$('auth').hidden=false;$('p').value='';setMode(mode);
   }
   function showApp(name){tab('home');
-    $('hello').textContent='Hello, '+name.toUpperCase();$('avatar').textContent=name.charAt(0).toUpperCase();$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
+    $('hello').textContent='Hello, '+cap(name);$('avatar').textContent=name.charAt(0).toUpperCase();$('auth').hidden=true;$('app').hidden=false;$('err').textContent='';render();
     api('/api/puzzles').then(function(r){items=r.map(prep);render()})
       .catch(function(){$('err').textContent='Could not load your puzzles. Refresh to try again.'});
   }
