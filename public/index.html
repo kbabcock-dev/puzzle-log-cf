@@ -173,6 +173,12 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
 .ratepick button{background:none;padding:0;width:44px;height:44px;border-radius:10px;display:grid;place-items:center}
 .ratepick svg{width:34px;height:34px;fill:none;stroke:var(--mute);stroke-width:1.5;stroke-linejoin:round}
 .ratepick button.on svg{fill:#e0a526;stroke:#e0a526}
+form,label{grid-template-columns:minmax(0,1fr)}
+#formDlg{overflow-x:hidden}
+#formDlg form>*{min-width:0}
+input[type=file]{min-width:0;max-width:100%;width:100%;overflow:hidden;text-overflow:ellipsis}
+.preview{max-width:100%;height:auto;min-width:0}
+html,body{touch-action:pan-y pinch-zoom;overscroll-behavior-x:none}
 </style>
 </head>
 <body>
@@ -369,7 +375,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     $('formDlg').showModal();$('name').focus();
   }
   $('cancel').addEventListener('click',function(){$('formDlg').close()});
-  $('formDlg').addEventListener('close',resetForm);
+  $('formDlg').addEventListener('close',function(){resetForm();window.scrollTo(0,window.pageYOffset);document.documentElement.scrollLeft=0;document.body.scrollLeft=0});
   $('formDlg').addEventListener('click',function(e){if(e.target===this)this.close()});
   $('add').addEventListener('click',function(){resetForm();$('formDlg').showModal();$('name').focus()});
   $('rm').addEventListener('change',function(){
@@ -396,7 +402,7 @@ input[type=date]{display:block;min-width:0;min-height:46px;text-align:left;-webk
     .then(function(row){
       row=prep(row);
       if(editing)items=items.map(function(x){return x.id===editing?row:x});else items.push(row);
-      resetForm();$('formDlg').close();render();
+      if(document.activeElement)document.activeElement.blur();resetForm();$('formDlg').close();render();
     }).catch(function(){$('err').textContent='Could not save the puzzle. Check your connection and try again.'})
     .then(function(){btn.disabled=false});
   });
