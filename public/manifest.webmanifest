@@ -1,0 +1,12 @@
+{
+  "name": "Puzzle Log",
+  "short_name": "Puzzle Log",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#edf1ea",
+  "theme_color": "#3d5a45",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
